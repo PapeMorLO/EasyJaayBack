@@ -29,6 +29,7 @@ class ShopController extends Controller
             'status' => 'success',
             'shop' => [
                 'id' => $shop->id,
+                'logo' => $shop->logo,
                 'raison_sociale' => $shop->raison_sociale,
                 'slug' => $shop->slug,
                 'theme' => $shop->couleur_theme ?? '#ec4899',
