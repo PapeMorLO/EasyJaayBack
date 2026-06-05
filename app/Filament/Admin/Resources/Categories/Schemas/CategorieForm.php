@@ -24,14 +24,18 @@ class CategorieForm
 
                         // Ajout du champ pour gérer la catégorie parente
                         Forms\Components\Select::make('parent_id')
-                            ->relationship('parent', 'designation')
+                            ->relationship(
+                                name: 'parent', 
+                                titleAttribute: 'designation',
+                                // Cette fonction filtre la liste uniquement si la catégorie existe déjà (en mode édition)
+                                modifyQueryUsing: fn ($query, ?Categorie $record) => $record 
+                                    ? $query->where('id', '!=', $record->id) 
+                                    : $query
+                            )
                             ->searchable()
                             ->preload()
                             ->label('Catégorie parente')
-                            ->placeholder('Aucune (Catégorie principale)')
-                            // Évite qu'une catégorie puisse se choisir elle-même comme parent (Boucle infinie)
-                            ->disabled(fn (?Categorie $record) => $record === null) 
-                            ->hidden(fn (?Categorie $record) => $record === null),
+                            ->placeholder('Aucune (Catégorie principale)'),
                             
                         Forms\Components\Textarea::make('description')
                             ->maxLength(65535)
