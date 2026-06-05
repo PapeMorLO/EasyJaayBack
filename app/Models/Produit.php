@@ -10,7 +10,7 @@ class Produit extends Model
 {
     //
     protected $fillable = [
-        'entreprise_id', 'sous_categorie_id', 'reference', 'designation', 
+        'entreprise_id', 'parent_id', 'reference', 'designation', 
         'description', 'type', 'prix_achat', 'prix_vente', 'taux_promotion', 
         'quantite_stock', 'color', 'taille_dimension', 
         'image1', 'image2', 'image3', 'image4', 'etat'
@@ -26,9 +26,10 @@ class Produit extends Model
         return $this->belongsTo(Entreprise::class);
     }
 
-    public function sousCategorie(): BelongsTo
+    public function categories(): BelongsToMany
     {
-        return $this->belongsTo(SousCategorie::class, 'sous_categorie_id');
+        return $this->belongsToMany(Categorie::class, 'categorie_produit')
+                    ->withTimestamps(); // Optionnel : si vous voulez suivre les dates d'association
     }
 
     public function commandes(): BelongsToMany

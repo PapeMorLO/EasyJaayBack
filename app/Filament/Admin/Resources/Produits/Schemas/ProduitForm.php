@@ -16,29 +16,37 @@ class ProduitForm
                 Forms\Components\TextInput::make('designation')
                     ->required()
                     ->maxLength(255),
+                    
                 Forms\Components\TextInput::make('prix_vente')
                     ->numeric()
                     ->required()
                     ->suffix('FCFA'),
+                    
                 Forms\Components\TextInput::make('quantite_stock')
                     ->numeric()
                     ->required()
                     ->default(0),
-                Forms\Components\Select::make('sous_categorie_id')
-                    ->relationship('sousCategorie', 'designation')
-                    ->required()
-                    ->searchable(),
+
+                // Remplacement du Select simple par un Select Multiple lié à la relation 'categories'
+                Forms\Components\Select::make('categories')
+                    ->relationship('categories', 'designation')
+                    ->multiple() // Active la sélection multiple (WooCommerce style)
+                    ->searchable()
+                    ->preload()
+                    ->label('Catégories du produit')
+                    ->placeholder('Sélectionnez une ou plusieurs catégories...'),
+
                 Forms\Components\FileUpload::make('image1')
-                     ->label('Photos du produit (Galerie)')
+                    ->label('Photos du produit (Galerie)')
                     ->image()
-                    ->multiple() // <-- Permet de téléverser plusieurs images à la fois !
-                    ->reorderable() // Glisser-déposer pour réorganiser l'ordre d'affichage
-                    ->appendFiles() // Permet d'ajouter de nouvelles photos sans écraser les anciennes
+                    ->multiple()
+                    ->reorderable()
+                    ->appendFiles()
                     ->directory('produits')
-                    ->disk('public') // Utilise le stockage public
+                    ->disk('public')
                     ->visibility('public')
                     ->helperText('Vous pouvez glisser-déposer pour réorganiser les images. Maintenez Ctrl / Cmd pour en sélectionner plusieurs.')
-                    ->columnSpanFull(), // Prend toute la largeur pour une meilleure visibilité de la galerie
+                    ->columnSpanFull(),
             ]);
     }
 }
