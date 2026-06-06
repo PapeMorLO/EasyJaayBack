@@ -9,10 +9,12 @@ return new class extends Migration
     public function up(): void
     {
     // 1. Ajouter la hiérarchie dans la table categories
+    if (!Schema::hasColumn('categories', 'parent_id')) {
         Schema::table('categories', function (Blueprint $table) {
             $table->foreignId('parent_id')->nullable()->after('id')
                   ->constrained('categories')->nullOnDelete();
         });
+    
 
         // 2. Créer la table pivot entre produits et catégories
         Schema::create('categorie_produit', function (Blueprint $table) {
@@ -28,6 +30,7 @@ return new class extends Migration
             $table->dropForeign(['sous_categorie_id']);
             $table->dropColumn('sous_categorie_id');
         });
+    }
     }
 
     public function down(): void

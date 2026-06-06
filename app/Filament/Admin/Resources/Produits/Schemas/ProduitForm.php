@@ -5,6 +5,8 @@ namespace App\Filament\Admin\Resources\Produits\Schemas;
 use Filament\Schemas\Schema;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Schemas\Components\Section; 
+use Filament\Schemas\Components\Grid; 
 
 class ProduitForm
 {
@@ -36,6 +38,19 @@ class ProduitForm
                     ->label('Catégories du produit')
                     ->placeholder('Sélectionnez une ou plusieurs catégories...'),
 
+                Section::make('Variations & Options du produit')
+                    ->description('Configurez les variantes (Tailles, Pointures, Couleurs, Contenances...) si nécessaire. Laissez vide si le produit n\'a pas de déclinaison.')
+                    ->collapsible() // Permet de replier la section pour ne pas encombrer l'écran
+                    ->schema([
+                        Forms\Components\TagsInput::make('taille_dimension')
+                            ->label('Tailles / Pointures disponibles')
+                            ->placeholder('Ajouter une taille (ex: M, XL, 42, 43)...'),
+
+                        Forms\Components\TagsInput::make('color')
+                            ->label('Couleurs disponibles')
+                            ->placeholder('Ajouter une couleur (ex: Noir, Blanc, Rouge)...'),
+                    ]),
+                    
                 Forms\Components\FileUpload::make('image1')
                     ->label('Photos du produit (Galerie)')
                     ->image()

@@ -19,6 +19,8 @@ class Produit extends Model
         'image1' => 'array', // <-- TRÈS IMPORTANT pour l'upload multiple !
         'prix_vente' => 'integer',
         'quantite_stock' => 'integer',
+        'color' => 'array',
+        'taille_dimension' => 'array',
     ];
     
     public function entreprise(): BelongsTo
