@@ -38,6 +38,10 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Indigo,
             ])
+            ->brandLogo(asset('images/logo.png')) // Chemin de votre logo
+            ->brandLogoHeight('5rem') // Ajuste la hauteur de l'image
+            ->favicon(asset('images/logo.png'))
+             ->brandName('Diay Rek')
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
             ->pages([
