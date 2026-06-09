@@ -57,6 +57,13 @@ class EntrepriseForm
                         Forms\Components\TextInput::make('site_web')
                             ->label('Lien site web optionnel')
                             ->url(),
+                        Forms\Components\Select::make('type_livraison')
+                            ->options([
+                                'gratuit' => 'Livraison gratuite',
+                                'selon_zone' => 'Livraison selon la zone',
+                            ])
+                            ->required()
+                            ->label('Politique de livraison'),
                     ])->columns(2)
             ]);
     }

@@ -11,7 +11,7 @@ class Entreprise extends Model implements HasName
 {
     //
     protected $fillable = [
-        'raison_sociale', 'slug', 'logo', 'couleur_theme', 
+        'raison_sociale', 'slug', 'logo', 'couleur_theme', 'type_livraison',
         'adresse', 'contact_call', 'contact_whatsapp', 'site_web', 'is_active'
     ];
 

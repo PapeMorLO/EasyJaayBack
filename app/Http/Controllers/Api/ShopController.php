@@ -34,6 +34,7 @@ class ShopController extends Controller
                 'slug' => $shop->slug,
                 'theme' => $shop->couleur_theme ?? '#ec4899',
                 'contact_whatsapp' => $shop->contact_whatsapp,
+                'type_livraison' => $shop->type_livraison,
             ],
             'produits' => $shop->produits
         ]);
