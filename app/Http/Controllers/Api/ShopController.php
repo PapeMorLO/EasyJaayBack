@@ -39,4 +39,10 @@ class ShopController extends Controller
             'produits' => $shop->produits
         ]);
     }
+
+    public function incrementView($slug) {
+        $shop = Entreprise::where('slug', $slug)->firstOrFail();
+        $shop->increment('visites');
+        return response()->json(['success' => true]);
+    }
 }

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\OnboardingController;
 use App\Http\Controllers\Api\ShopController;
 use App\Http\Controllers\Api\CommandeController;
+use App\Http\Controllers\Api\ProductController; 
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -19,6 +20,10 @@ Route::get('/shops/{slug}', [ShopController::class, 'show']);
 
 // Route COMMANDES : Enregistre la commande
 Route::post('/commandes', [CommandeController::class, 'store']);
+
+Route::post('/shops/{slug}/increment-view', [ShopController::class, 'incrementView']);
+Route::post('/products/{id}/increment-view', [ProductController::class, 'incrementView']);
+
 /*
 // Route pour récupérer le catalogue d'une boutique spécifique via son slug
 Route::get('/shops/{slug}', function ($slug) {

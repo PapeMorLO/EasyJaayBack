@@ -6,26 +6,32 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\Commande;
 use App\Models\Produit;
+use Filament\Support\Enums\IconPosition;
+use Filament\Facades\Filament;
 
 class StatsBoutique extends BaseWidget
 {
-    // Optionnel : Permet de recharger automatiquement le widget toutes les 15 secondes
+    // Rechargement automatique du widget toutes les 15 secondes
     protected ?string $pollingInterval = '15s';
     protected static ?int $sort = 1; 
 
     protected function getStats(): array
     {
-        // Grâce au multi-tenant de Filament v5, ces requêtes pointent UNIQUEMENT
-        // sur l'entreprise du commerçant connecté.
-        
+        // Récupération sécurisée du tenant (l'Entreprise) connecté via Filament
+        $currentTenant = Filament::getTenant();
+
         // 1. Calcul du chiffre d'affaires (uniquement les commandes validées ou livrées)
+        // Les requêtes sont automatiquement filtrées sur le tenant actuel par Filament
         $revenuTotal = Commande::whereIn('statut', ['valide', 'livre'])->sum('montant_total');
 
-        // 2. Nombre de commandes qui attendent un traitement ou un livreur
+        // 2. Nombre de commandes en attente de traitement
         $commandesEnAttente = Commande::where('statut', 'en_attente')->count();
 
-        // 3. Alerte sur les produits bientôt en rupture de stock (Moins de 5 articles)
+        // 3. Alerte sur les produits en stock critique (Moins de 5 articles)
         $produitsCritiques = Produit::where('quantite_stock', '<=', 5)->count();
+
+        // 4. Récupération dynamique du nombre de visites de la boutique connectée
+        $visites = $currentTenant ? $currentTenant->visites : 0; 
 
         return [
             Stat::make('Revenus Totaux', number_format($revenuTotal, 0, ',', ' ') . ' FCFA')
@@ -42,6 +48,11 @@ class StatsBoutique extends BaseWidget
                 ->description('Produits avec 5 articles ou moins')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color($produitsCritiques > 0 ? 'danger' : 'success'),
+            
+            Stat::make('Visites de la boutique', number_format($visites, 0, ',', ' '))
+                ->description('Total des ouvertures uniques de votre boutique en ligne')
+                ->descriptionIcon('heroicon-m-eye', IconPosition::Before)
+                ->color('info')
         ];
     }
 }

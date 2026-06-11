@@ -25,7 +25,14 @@ class ProduitsTable
                 Tables\Columns\TextColumn::make('designation')->searchable(),
                 Tables\Columns\TextColumn::make('prix_vente')->sortable()->suffix(' FCFA'),
                 Tables\Columns\TextColumn::make('quantite_stock')->sortable(),
+                Tables\Columns\TextColumn::make('visites')
+                ->label('Consultations')
+                ->icon('heroicon-o-eye')
+                ->numeric()
+                ->sortable() // Permet au commerçant de cliquer pour trier du plus vu au moins vu !
+                ->color('gray'),
             ])
+            ->defaultSort('visites', 'desc')
             ->filters([
                 //
             ])
