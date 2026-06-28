@@ -30,6 +30,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->login()
                 // --- MULTI-TENANCY FILAMENT v5 ---
             ->tenant(Entreprise::class, slugAttribute: 'slug')

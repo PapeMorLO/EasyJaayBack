@@ -8,7 +8,7 @@ use App\Models\Entreprise;
 
 class ShopController extends Controller
 {
-    //
+//
     public function show($slug)
     {
         // On récupère la boutique avec son catalogue filtré
