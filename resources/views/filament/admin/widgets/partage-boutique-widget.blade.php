@@ -13,19 +13,38 @@
                         </h2>
                     </div>
 
-                    <div class="flex items-center bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 w-full max-w-xs">
+                    <!-- GESTION DE LA COPIE AVEC ALPINE.JS ICI -->
+                    <div 
+                        x-data="{ 
+                            copie: false, 
+                            url: '{{ $shop_url }}',
+                            copier() {
+                                if (navigator.clipboard && window.isSecureContext) {
+                                    navigator.clipboard.writeText(this.url).then(() => this.indiquerCopie());
+                                } else {
+                                    const input = document.createElement('input'); input.value = this.url; document.body.appendChild(input); input.select(); document.execCommand('copy'); document.body.removeChild(input);
+                                    this.indiquerCopie();
+                                }
+                            },
+                            indiquerCopie() {
+                                this.copie = true;
+                                setTimeout(() => this.copie = false, 2000);
+                            }
+                        }"
+                        class="flex items-center bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 w-full max-w-xs"
+                    >
                         <span class="px-2 text-[11px] font-semibold text-teal-600 dark:text-teal-400 font-mono truncate select-all flex-grow">
                             {{ $shop_url }}
                         </span>
                         <button 
-                            onclick="copierLienBoutique()"
-                            id="btn-copier"
-                            class="px-3 py-1 rounded-md bg-teal-600 text-white font-bold text-[10px] shadow-sm hover:bg-teal-700 transition active:scale-95 flex items-center gap-1 shrink-0"
+                            @click="copier()"
+                            :class="copie ? 'bg-emerald-600' : 'bg-teal-600'"
+                            class="px-3 py-1 rounded-md text-white font-bold text-[10px] shadow-sm hover:bg-teal-700 transition active:scale-95 flex items-center gap-1 shrink-0"
                         >
                             <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c1.005.15 1.78 1.005 1.78 2.037v9.656c0 1.121-.821 2.07-1.93 2.201a41.365 41.365 0 0 1-7.14 0c-1.11-.13-1.93-1.08-1.93-2.201V5.925c0-1.032.774-1.888 1.78-2.037" />
                             </svg>
-                            <span id="texte-copier">Copier</span>
+                            <span x-text="copie ? 'Copié !' : 'Copier'"></span>
                         </button>
                     </div>
                 </div>
@@ -51,22 +70,6 @@
                     </div>
                 </div>
             </div>
-
-            <script>
-                function copierLienBoutique() {
-                    const url = "{{ $shop_url }}";
-                    if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(url).then(indiquerCopie); }
-                    else {
-                        const tempInput = document.createElement("input"); tempInput.value = url; document.body.appendChild(tempInput); tempInput.select(); document.execCommand("copy"); document.body.removeChild(tempInput); indiquerCopie();
-                    }
-                }
-                function indiquerCopie() {
-                    const texte = document.getElementById("texte-copier"); const bouton = document.getElementById("btn-copier");
-                    texte.innerText = "Copié !"; bouton.classList.replace("bg-teal-600", "bg-emerald-600");
-                    setTimeout(() => { texte.innerText = "Copier"; bouton.classList.replace("bg-emerald-600", "bg-teal-600"); }, 2000);
-                }
-            </script>
         @endif
     </x-filament::section>
-  
 </x-filament-widgets::widget>
