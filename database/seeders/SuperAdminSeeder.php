@@ -21,7 +21,7 @@ class SuperAdminSeeder extends Seeder
                 'entreprise_id' => 0, // Le super admin n'est pas lié à un tenant
                 'name' => 'Système',
                 'prenom' => 'Administrateur',
-                'phone' => '778762197',
+                'phone' => '7787621987',
                 'password' => Hash::make('pass123'),
                 'role' => 'superadmin', // Clé d'accès au panel
                 'adresse' => 'Dakar, Sénégal' // Ajout du champ manquant
