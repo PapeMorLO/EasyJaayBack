@@ -77,4 +77,24 @@ class User extends Authenticatable implements HasTenants
         return $tenant instanceof Entreprise ? (string) $tenant->raison_sociale : 'PME Locale';
     }
 
+    /**
+     * Contrôle d'accès dynamique aux différents panels de Filament.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Si on tente d'accéder au panel "superadmin"
+        if ($panel->getId() === 'superadmin') {
+            // Seuls les utilisateurs avec un rôle spécifique ou votre adresse email peuvent y entrer
+            return $this->role === 'superadmin' || $this->email === 'votre-email@djolofxarala.com';
+        }
+
+        // Si on tente d'accéder au panel "merchant" (la boutique)
+        if ($panel->getId() === 'merchant') {
+            // Accès autorisé pour les gérants de boutique
+            return $this->entreprise_id !== null;
+        }
+
+        return false;
+    }
+
 }
