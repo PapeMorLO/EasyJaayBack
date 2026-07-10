@@ -18,7 +18,7 @@ class SuperAdminSeeder extends Seeder
         User::firstOrCreate(
             ['email' => 'admin@diayrek.com'],
             [
-                'entreprise_id' => null, // Le super admin n'est pas lié à un tenant
+                'entreprise_id' => 0, // Le super admin n'est pas lié à un tenant
                 'name' => 'Système',
                 'prenom' => 'Administrateur',
                 'phone' => '778762197',
