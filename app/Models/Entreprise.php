@@ -12,7 +12,15 @@ class Entreprise extends Model implements HasName
     //
     protected $fillable = [
         'raison_sociale', 'slug', 'logo', 'couleur_theme', 'type_livraison',
-        'adresse', 'contact_call', 'contact_whatsapp', 'site_web', 'is_active'
+        'adresse', 'contact_call', 'contact_whatsapp', 'site_web', 'is_active',
+        // Priorité 2 : infos qui rassurent le client + Pixel Facebook
+        'a_propos', 'infos_livraison', 'paiements',
+        'facebook_url', 'instagram_url', 'snapchat_url', 'tiktok_url', 'pixel_facebook',
+    ];
+
+    protected $casts = [
+        'paiements' => 'array',
+        'is_active' => 'boolean',
     ];
 
     // Une entreprise a plusieurs utilisateurs/agents

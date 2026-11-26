@@ -18,9 +18,11 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Models\Entreprise; 
+use App\Models\Entreprise;
 use App\Filament\Admin\Widgets\StatsBoutique;
 use App\Filament\Admin\Widgets\GraphiqueVentes;
+use App\Filament\Admin\Widgets\EntonnoirBoutique;
+use App\Filament\Admin\Pages\Tenancy\EditProfilBoutique;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -36,6 +38,11 @@ class AdminPanelProvider extends PanelProvider
             ->tenant(Entreprise::class, slugAttribute: 'slug')
                 // Optionnel v5 : Permet de personnaliser l'affichage dans le menu du panel
             ->tenantMenu(true)
+            // Page "Ma boutique" : adresse, paiements, livraison, réseaux, Pixel
+            ->tenantProfile(EditProfilBoutique::class)
+            // Cloche de notifications : "Nouvelle commande n°12". Vérifie toutes les 30 secondes.
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->colors([
                 'primary' => Color::Indigo,
             ])
@@ -54,6 +61,7 @@ class AdminPanelProvider extends PanelProvider
                 //FilamentInfoWidget::class,
                 StatsBoutique::class,
                 GraphiqueVentes::class,
+                EntonnoirBoutique::class,
             ])
             ->middleware([
                 EncryptCookies::class,

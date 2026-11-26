@@ -5,49 +5,36 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\OnboardingController;
 use App\Http\Controllers\Api\ShopController;
 use App\Http\Controllers\Api\CommandeController;
-use App\Http\Controllers\Api\ProductController; 
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\EvenementController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
-Route::post('/onboarding', [OnboardingController::class, 'register']);
-
-
-// Route pour récupérer le catalogue d'une boutique spécifique via son slug
-Route::get('/shops/{slug}', [ShopController::class, 'show']);
-
-// Route COMMANDES : Enregistre la commande
-Route::post('/commandes', [CommandeController::class, 'store']);
-
-Route::post('/shops/{slug}/increment-view', [ShopController::class, 'incrementView']);
-Route::post('/products/{id}/increment-view', [ProductController::class, 'incrementView']);
-
 /*
-// Route pour récupérer le catalogue d'une boutique spécifique via son slug
-Route::get('/shops/{slug}', function ($slug) {
-    $shop = Entreprise::where('slug', $slug)
-        ->where('is_active', true)
-        ->with(['produits' => function($query) {
-            $query->where('quantite_stock', '>', 0); // Uniquement les produits en stock
-        }])
-        ->first();
+ * throttle:X,1 = au maximum X appels par minute et par adresse IP.
+ * (Si ton serveur est derrière nginx / Cloudflare, voir LISEZMOI : trustProxies.)
+ */
 
-    if (!$shop) {
-        return response()->json(['message' => 'Boutique introuvable.'], 404);
-    }
+// Inscription d'une boutique
+Route::post('/onboarding', [OnboardingController::class, 'register'])->middleware('throttle:5,1');
 
-    return response()->json([
-        'status' => 'success',
-        'shop' => [
-            'id' => $shop->id,
-            'raison_sociale' => $shop->raison_sociale,
-            'slug' => $shop->slug,
-            'theme' => $shop->couleur_theme ?? '#ec4899',
-            'contact_whatsapp' => $shop->contact_whatsapp,
-        ],
-        'produits' => $shop->produits
-    ]);
-});
-*/
+// Pendant la saisie du nom de la boutique : "quelle adresse ? déjà pris ?" (ne crée rien)
+Route::get('/onboarding/verifier', [OnboardingController::class, 'verifier'])->middleware('throttle:60,1');
+
+// Catalogue public d'une boutique
+Route::get('/shops/{slug}', [ShopController::class, 'show']);
+Route::get('/shops/{slug}/infos', [ShopController::class, 'infos']);                 // bloc confiance + Pixel
+Route::get('/shops/{slug}/produits/{id}', [ShopController::class, 'produit']);       // page produit partageable
+
+// Commandes : panier + formulaire, ou bouton "WhatsApp direct"
+Route::post('/commandes', [CommandeController::class, 'store'])->middleware('throttle:20,1');
+Route::post('/commandes/direct', [CommandeController::class, 'direct'])->middleware('throttle:20,1');
+
+// Journal des visites (entonnoir par canal)
+Route::post('/evenements', [EvenementController::class, 'store'])->middleware('throttle:120,1');
+
+// Compteurs de visites (ceux que tu avais déjà)
+Route::post('/shops/{slug}/increment-view', [ShopController::class, 'incrementView'])->middleware('throttle:120,1');
+Route::post('/products/{id}/increment-view', [ProductController::class, 'incrementView'])->middleware('throttle:120,1');

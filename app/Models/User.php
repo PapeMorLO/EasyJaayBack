@@ -7,14 +7,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Models\Contracts\HasTenants;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-
-class User extends Authenticatable implements HasTenants
+/*
+ * IMPORTANT : la classe implémente maintenant FilamentUser.
+ * Sans cela, Filament n'appelle jamais canAccessPanel() et, hors environnement "local",
+ * il refuse l'accès à l'admin.
+ */
+class User extends Authenticatable implements FilamentUser, HasTenants
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -57,7 +61,7 @@ class User extends Authenticatable implements HasTenants
     }
 
     /**
-     * Filament v5 : Récupère la collection d'entreprises accessibles par l'utilisateur
+     * Filament : les boutiques accessibles par l'utilisateur
      */
     public function getTenants(Panel $panel): Collection
     {
@@ -65,7 +69,7 @@ class User extends Authenticatable implements HasTenants
     }
 
     /**
-     * Filament v5 : Sécurité d'accès au tenant
+     * Filament : sécurité d'accès à une boutique
      */
     public function canAccessTenant(Model $tenant): bool
     {
@@ -78,23 +82,11 @@ class User extends Authenticatable implements HasTenants
     }
 
     /**
-     * Contrôle d'accès dynamique aux différents panels de Filament.
+     * Qui a le droit d'entrer dans l'admin ? Ton seul panel s'appelle "admin" :
+     * tout utilisateur rattaché à une boutique peut y entrer.
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        // Si on tente d'accéder au panel "superadmin"
-        if ($panel->getId() === 'superadmin') {
-            // Seuls les utilisateurs avec un rôle spécifique ou votre adresse email peuvent y entrer
-            return $this->role === 'superadmin' || $this->email === 'votre-email@djolofxarala.com';
-        }
-
-        // Si on tente d'accéder au panel "merchant" (la boutique)
-        if ($panel->getId() === 'merchant') {
-            // Accès autorisé pour les gérants de boutique
-            return $this->entreprise_id !== null;
-        }
-
-        return false;
+        return $panel->getId() === 'admin' && $this->entreprise_id !== null;
     }
-
 }

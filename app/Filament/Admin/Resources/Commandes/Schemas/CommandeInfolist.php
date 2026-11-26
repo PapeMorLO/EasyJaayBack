@@ -2,6 +2,9 @@
 
 namespace App\Filament\Admin\Resources\Commandes\Schemas;
 
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class CommandeInfolist
@@ -10,23 +13,51 @@ class CommandeInfolist
     {
         return $schema
             ->components([
-                //
-                \Filament\Infolists\Components\Section::make('Détails du Client')
+                Section::make('Commande')
                     ->schema([
-                        \Filament\Infolists\Components\TextEntry::make('nom_client')->label('Nom complet'),
-                        \Filament\Infolists\Components\TextEntry::make('phone_client')->label('Téléphone'),
-                        \Filament\Infolists\Components\TextEntry::make('adresse_livraison')->label('Adresse de livraison'),
+                        TextEntry::make('id')->label('Numéro'),
+                        TextEntry::make('created_at')->label('Date')->dateTime(),
+                        TextEntry::make('montant_total')->label('Total')->money('XOF', locale: 'fr'),
+                        TextEntry::make('statut')
+                            ->label('Statut')
+                            ->badge()
+                            ->formatStateUsing(fn (?string $state) => match ($state) {
+                                'en_attente' => 'En attente',
+                                'valide'     => 'Validée',
+                                'livre'      => 'Livrée',
+                                'annule'     => 'Annulée',
+                                default      => (string) $state,
+                            }),
+                        TextEntry::make('source')
+                            ->label('Origine')
+                            ->formatStateUsing(fn (?string $state) => match ($state) {
+                                'direct' => 'WhatsApp direct',
+                                'pos'    => 'Caisse',
+                                default  => 'Site',
+                            }),
+                        TextEntry::make('canal')->label('Canal')->placeholder('-'),
                     ])->columns(3),
-                
-                \Filament\Infolists\Components\Section::make('Articles commandés')
+
+                Section::make('Détails du client')
                     ->schema([
-                        \Filament\Infolists\Components\RepeatableEntry::make('produits')
+                        TextEntry::make('nom_client')->label('Nom complet'),
+                        TextEntry::make('phone_client')->label('Téléphone'),
+                        TextEntry::make('adresse_livraison')->label('Adresse de livraison'),
+                    ])->columns(3),
+
+                Section::make('Articles commandés')
+                    ->schema([
+                        // "lignes" garde le nom, la taille et la couleur choisis par le client
+                        RepeatableEntry::make('lignes')
+                            ->hiddenLabel()
                             ->schema([
-                                \Filament\Infolists\Components\TextEntry::make('designation')->label('Produit'),
-                                \Filament\Infolists\Components\TextEntry::make('pivot.quantite')->label('Quantité'),
-                                \Filament\Infolists\Components\TextEntry::make('pivot.prix_unitaire')->money('XOF')->label('Prix U.'),
-                            ])->columns(3)
-                    ])
+                                TextEntry::make('nom')->label('Produit'),
+                                TextEntry::make('taille')->label('Taille')->placeholder('-'),
+                                TextEntry::make('couleur')->label('Couleur')->placeholder('-'),
+                                TextEntry::make('quantite')->label('Quantité'),
+                                TextEntry::make('prix_unitaire')->money('XOF', locale: 'fr')->label('Prix U.'),
+                            ])->columns(5),
+                    ]),
             ]);
     }
 }

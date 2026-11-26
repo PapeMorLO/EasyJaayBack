@@ -13,25 +13,35 @@ class StatsBoutique extends BaseWidget
 {
     // Rechargement automatique du widget toutes les 15 secondes
     protected ?string $pollingInterval = '15s';
-    protected static ?int $sort = 1; 
+    protected static ?int $sort = 1;
 
     protected function getStats(): array
     {
-        // Récupération sécurisée du tenant (l'Entreprise) connecté via Filament
-        $currentTenant = Filament::getTenant();
+        $boutique = Filament::getTenant();
+        $id = $boutique?->id;
 
-        // 1. Calcul du chiffre d'affaires (uniquement les commandes validées ou livrées)
-        // Les requêtes sont automatiquement filtrées sur le tenant actuel par Filament
-        $revenuTotal = Commande::whereIn('statut', ['valide', 'livre'])->sum('montant_total');
+        // Chaque requête filtre explicitement sur la boutique connectée :
+        // on ne dépend pas du filtrage automatique de Filament.
 
-        // 2. Nombre de commandes en attente de traitement
-        $commandesEnAttente = Commande::where('statut', 'en_attente')->count();
+        // 1. Chiffre d'affaires (commandes validées, livrées, et ventes de la caisse)
+        $revenuTotal = Commande::where('entreprise_id', $id)
+            ->whereIn('statut', ['valide', 'livre'])
+            ->sum('montant_total');
 
-        // 3. Alerte sur les produits en stock critique (Moins de 5 articles)
-        $produitsCritiques = Produit::where('quantite_stock', '<=', 5)->count();
+        // 2. Commandes à traiter
+        $commandesEnAttente = Commande::where('entreprise_id', $id)
+            ->where('statut', 'en_attente')
+            ->count();
 
-        // 4. Récupération dynamique du nombre de visites de la boutique connectée
-        $visites = $currentTenant ? $currentTenant->visites : 0; 
+        // 3. Stock critique : produits physiques publiés avec 5 articles ou moins
+        $produitsCritiques = Produit::where('entreprise_id', $id)
+            ->where('etat', 'publie')
+            ->where('type', 'physique')
+            ->where('quantite_stock', '<=', 5)
+            ->count();
+
+        // 4. Visites depuis le début (compteur de l'entreprise)
+        $visites = $boutique ? $boutique->visites : 0;
 
         return [
             Stat::make('Revenus Totaux', number_format($revenuTotal, 0, ',', ' ') . ' FCFA')
@@ -40,7 +50,7 @@ class StatsBoutique extends BaseWidget
                 ->color('success'),
 
             Stat::make('Commandes en Attente', $commandesEnAttente)
-                ->description('Commandes à préparer ou livrer')
+                ->description('Commandes à valider, préparer ou livrer')
                 ->descriptionIcon('heroicon-m-shopping-cart')
                 ->color($commandesEnAttente > 0 ? 'warning' : 'gray'),
 
@@ -48,11 +58,11 @@ class StatsBoutique extends BaseWidget
                 ->description('Produits avec 5 articles ou moins')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color($produitsCritiques > 0 ? 'danger' : 'success'),
-            
-            Stat::make('Visites de la boutique', number_format($visites, 0, ',', ' '))
-                ->description('Total des ouvertures uniques de votre boutique en ligne')
+
+            Stat::make('Visites depuis le début', number_format($visites, 0, ',', ' '))
+                ->description('Ouvertures uniques de votre boutique en ligne')
                 ->descriptionIcon('heroicon-m-eye', IconPosition::Before)
-                ->color('info')
+                ->color('info'),
         ];
     }
 }
